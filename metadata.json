@@ -1,0 +1,6 @@
+{
+  "name": "UbicaYa - Mapa Interactivo & Organizador Inteligente",
+  "description": "Encuentra y organiza cualquier objeto desde lo más pequeño a lo más grande en un mapa interactivo con escaneo QR y sugerencias inteligentes de almacenaje y DIY.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
