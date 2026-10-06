@@ -5,34 +5,44 @@ import {
   MASCOT_PROFILES, 
   LUMI_DIALOGUES, 
   GLIS_DIALOGUES, 
+  NURO_DIALOGUES,
   MascotDialogues,
   getRandomMascotDialogue 
 } from '../constants/mascotCopy';
 
-export type MascotMood = 
+export type MascotExpression = 
   | 'idle' 
   | 'thinking' 
   | 'searching' 
-  | 'scanning' 
-  | 'celebrating' 
-  | 'sleeping' 
-  | 'surprised';
+  | 'success' 
+  | 'offline'
+  | 'listening'
+  | 'speaking'
+  | 'scanning'
+  | 'wink'
+  | 'celebrating';
+
+export type MascotMood = MascotExpression;
 
 interface MascotContextType {
   activeMascotId: MascotId;
   mascot: MascotProfile;
   dialogues: MascotDialogues;
+  expression: MascotExpression;
+  setExpression: (expression: MascotExpression) => void;
   mood: MascotMood;
   setMood: (mood: MascotMood) => void;
   setActiveMascotId: (id: MascotId) => void;
   voiceEnabled: boolean;
   setVoiceEnabled: (enabled: boolean) => void;
-  speakMascot: (text: string) => void;
+  speakMascot: (text: string, onEnd?: () => void) => void;
   stopSpeaking: () => void;
   isSpeaking: boolean;
   isOnboardingOpen: boolean;
   setIsOnboardingOpen: (open: boolean) => void;
   triggerCelebration: () => void;
+  triggerSuccess: () => void;
+  triggerWink: () => void;
 }
 
 const MascotContext = createContext<MascotContextType | undefined>(undefined);
@@ -50,7 +60,7 @@ export const MascotProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return 'lumi';
   });
 
-  const [mood, setMood] = useState<MascotMood>('idle');
+  const [expression, setExpressionState] = useState<MascotExpression>('idle');
   const [voiceEnabled, setVoiceEnabledState] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem(LS_KEY_VOICE);
@@ -62,6 +72,15 @@ export const MascotProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
+
+  // Synchronized setter for expression and mood
+  const setExpression = (nextExp: MascotExpression) => {
+    setExpressionState(nextExp);
+  };
+
+  const setMood = (nextMood: MascotMood) => {
+    setExpressionState(nextMood);
+  };
 
   // Check onboarding on initial mount
   useEffect(() => {
@@ -87,11 +106,12 @@ export const MascotProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } catch (e) {}
   };
 
-  const mascot = MASCOT_PROFILES[activeMascotId];
-  const dialogues = activeMascotId === 'glis' ? GLIS_DIALOGUES : LUMI_DIALOGUES;
+  const mascot = MASCOT_PROFILES[activeMascotId] || MASCOT_PROFILES.lumi;
+  const dialogues = activeMascotId === 'glis' ? GLIS_DIALOGUES : activeMascotId === 'nuro' ? NURO_DIALOGUES : LUMI_DIALOGUES;
 
-  const speakMascot = (text: string) => {
+  const speakMascot = (text: string, onEnd?: () => void) => {
     if (!voiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      if (onEnd) onEnd();
       return;
     }
 
@@ -104,13 +124,24 @@ export const MascotProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       utterance.rate = 1.05;
       utterance.pitch = activeMascotId === 'glis' ? 1.25 : 1.1; // Lumi has warm clever pitch, Glis higher cheerful pitch
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        setExpressionState('speaking');
+      };
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setExpressionState('idle');
+        if (onEnd) onEnd();
+      };
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        setExpressionState('idle');
+      };
 
       window.speechSynthesis.speak(utterance);
     } catch (e) {
       setIsSpeaking(false);
+      setExpressionState('idle');
     }
   };
 
@@ -118,14 +149,29 @@ export const MascotProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      setExpressionState('idle');
     }
   };
 
   const triggerCelebration = () => {
-    setMood('celebrating');
+    setExpressionState('success');
     setTimeout(() => {
-      setMood('idle');
+      setExpressionState('idle');
     }, 4500);
+  };
+
+  const triggerSuccess = () => {
+    setExpressionState('success');
+    setTimeout(() => {
+      setExpressionState('idle');
+    }, 4500);
+  };
+
+  const triggerWink = () => {
+    setExpressionState('wink');
+    setTimeout(() => {
+      setExpressionState('idle');
+    }, 3500);
   };
 
   return (
@@ -134,7 +180,9 @@ export const MascotProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         activeMascotId,
         mascot,
         dialogues,
-        mood,
+        expression,
+        setExpression,
+        mood: expression,
         setMood,
         setActiveMascotId,
         voiceEnabled,
@@ -145,6 +193,8 @@ export const MascotProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isOnboardingOpen,
         setIsOnboardingOpen,
         triggerCelebration,
+        triggerSuccess,
+        triggerWink,
       }}
     >
       {children}

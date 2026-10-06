@@ -49,7 +49,7 @@ export const SaveCenter: React.FC<SaveCenterProps> = ({ onOpenAdvisor }) => {
     locateItemOnMap 
   } = useStorage();
 
-  const { mascot, dialogues, triggerCelebration } = useMascot();
+  const { mascot, dialogues, triggerCelebration, triggerSuccess, setExpression } = useMascot();
 
   const [mode, setMode] = useState<SaveMode>('photo');
 
@@ -237,6 +237,7 @@ export const SaveCenter: React.FC<SaveCenterProps> = ({ onOpenAdvisor }) => {
     if (!capturedPhoto) return;
     setIsAnalyzing(true);
     setAnalysisError(null);
+    setExpression('thinking');
 
     try {
       const response = await fetch('/api/analyze-item-image', {
@@ -265,9 +266,11 @@ export const SaveCenter: React.FC<SaveCenterProps> = ({ onOpenAdvisor }) => {
         recommendedContainerId: data.recommendedContainerId || allContainersWithLocation[0]?.id || '',
         locationRationale: data.locationRationale || '',
       });
+      setExpression('idle');
     } catch (err: unknown) {
       console.warn('Analysis error:', err);
       setAnalysisError('Error al contactar con el analizador inteligente. Usando sugerencia base.');
+      setExpression('idle');
     } finally {
       setIsAnalyzing(false);
     }
@@ -345,7 +348,7 @@ export const SaveCenter: React.FC<SaveCenterProps> = ({ onOpenAdvisor }) => {
     } catch (e) {
       // ignore
     }
-    triggerCelebration();
+    triggerSuccess();
 
     const spot = allContainersWithLocation.find((c) => c.id === chosenContainer);
     setSavedSuccessItem({

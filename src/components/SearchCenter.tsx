@@ -27,6 +27,7 @@ import { useStorage } from '../context/StorageContext';
 import { useMascot } from '../context/MascotContext';
 import { MascotMessageBubble } from './mascot/MascotMessageBubble';
 import { LumiAvatar } from './mascot/LumiAvatar';
+import { LumiCharacter } from './mascot/LumiCharacter';
 import { 
   StorageItem, 
   ItemSize, 
@@ -60,7 +61,7 @@ export const SearchCenter: React.FC<SearchCenterProps> = ({
     setSelectedFurnitureId 
   } = useStorage();
 
-  const { mascot, dialogues, triggerCelebration } = useMascot();
+  const { mascot, dialogues, triggerCelebration, triggerSuccess, setExpression } = useMascot();
 
   const [mode, setMode] = useState<SearchMode>('audio'); // Default to audio to immediately highlight voice commands
 
@@ -271,6 +272,7 @@ export const SearchCenter: React.FC<SearchCenterProps> = ({
           answer += ` Y ${matches.length - 1} objetos más coincidentes.`;
         }
         speakText(answer);
+        triggerSuccess();
       }
     } else {
       setLastExecutedCommand({
@@ -278,6 +280,7 @@ export const SearchCenter: React.FC<SearchCenterProps> = ({
         commandText: raw,
         details: `No se encontró ningún artículo para "${searchTerm}".`,
       });
+      setExpression('searching');
       if (isVoiceFeedbackEnabled) {
         speakText(`No he encontrado ningún artículo registrado con el nombre ${searchTerm}.`);
       }
@@ -304,6 +307,7 @@ export const SearchCenter: React.FC<SearchCenterProps> = ({
     recognition.onstart = () => {
       setIsListening(true);
       setSpeechError(null);
+      setExpression('listening');
       stopSpeaking();
     };
 
@@ -598,6 +602,25 @@ export const SearchCenter: React.FC<SearchCenterProps> = ({
                     <span className="w-52 h-52 rounded-full bg-indigo-400/15 animate-pulse"></span>
                   </div>
                 )}
+
+                {/* Dynamic Animated Mascot Character reacting to Voice / SpeechSynthesis */}
+                <div className="z-10 mb-2 flex flex-col items-center">
+                  <LumiCharacter
+                    expression={
+                      isSystemSpeaking
+                        ? 'speaking'
+                        : isListening
+                        ? 'listening'
+                        : lastExecutedCommand
+                        ? 'celebrating'
+                        : 'idle'
+                    }
+                    size="md"
+                    showSign={isSystemSpeaking}
+                    signText="¡Las tengo bajo control!"
+                    isFloating
+                  />
+                </div>
 
                 {/* Big Microphone button */}
                 <button

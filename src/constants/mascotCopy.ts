@@ -13,7 +13,7 @@ export interface MascotDialogues {
   randomTips: string[];
 }
 
-export type MascotId = 'lumi' | 'glis';
+export type MascotId = 'lumi' | 'glis' | 'nuro';
 
 export interface MascotProfile {
   id: MascotId;
@@ -46,6 +46,16 @@ export const MASCOT_PROFILES: Record<MascotId, MascotProfile> = {
     image: '/src/assets/images/glis_mascot_1791202048360.jpg',
     accentColor: '#f59e0b',
     bubbleBg: 'bg-amber-50/90 border-amber-200 text-amber-950',
+  },
+  nuro: {
+    id: 'nuro',
+    name: 'Nuro',
+    title: 'El Dron Escáner de Visión Espacial',
+    tagline: 'Radiografía cajas con su haz láser en tiempo real',
+    bio: 'Un dron esférico con visor holográfico y propulsores silenciosos. Escanea códigos QR a 60 FPS con algoritmo de visión por computador, analiza el contenido de cajas y te muestra lo que hay dentro sin tener que abrirlas.',
+    image: '/src/assets/images/lumi_mascot_1791202027224.jpg',
+    accentColor: '#10b981',
+    bubbleBg: 'bg-emerald-50/90 border-emerald-200 text-emerald-950',
   },
 };
 
@@ -136,6 +146,26 @@ export const GLIS_DIALOGUES: MascotDialogues = {
   saveSuccess: [
     "¡Ñam! Guardado en la despensa del orden. Mis mejillas de luz lo tienen asegurado para siempre.",
     "¡Nuevo tesoro registrado! Si alguna vez dudas de dónde está, ¡solo silba y te lo muestro!",
+  ],
+};
+
+export const NURO_DIALOGUES: MascotDialogues = {
+  ...LUMI_DIALOGUES,
+  onboarding: [
+    "¡Sistema Nuro en línea! Soy tu dron de escaneo óptico y visión espacial. Mi haz láser radiografía códigos QR y contenidos en milisegundos para que nunca más tengas que abrir una caja a ciegas.",
+  ],
+  qrScanning: [
+    "¡Sistemas de visión Nuro activados a 60 FPS! Apunta la cámara a cualquier etiqueta de caja o balda.",
+    "Láser de rastreo calibrado. Detectando códigos QR con algoritmo de decodificación en tiempo real.",
+    "Buscando patrón QR... Mantén la caja a unos 15-25 cm con buena iluminación.",
+    "¡Coordenadas ópticas fijadas! Escaneando píxeles del código QR...",
+  ],
+  searchFound: [
+    "¡Coordenadas fijadas! Nuro ha localizado el objeto en el mapa espacial.",
+    "¡Radiografía completada! El artículo está exactamente en las coordenadas señaladas.",
+  ],
+  saveSuccess: [
+    "¡Transmisión completada! Código QR enlazado a la base de datos de tu casa.",
   ],
 };
 

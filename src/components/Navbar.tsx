@@ -14,7 +14,8 @@ import {
   Box,
   Wifi,
   WifiOff,
-  Database
+  Database,
+  Printer
 } from 'lucide-react';
 import { useStorage } from '../context/StorageContext';
 import { useMascot } from '../context/MascotContext';
@@ -25,6 +26,7 @@ interface NavbarProps {
   onOpenAdvisor: () => void;
   onOpenScanner: () => void;
   onOpenOfflineCache: () => void;
+  onOpenQrPrintStudio?: () => void;
   isOnline: boolean;
   isSimulatedOffline: boolean;
 }
@@ -34,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdvisor,
   onOpenScanner,
   onOpenOfflineCache,
+  onOpenQrPrintStudio,
   isOnline,
   isSimulatedOffline,
 }) => {
@@ -262,6 +265,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Database className="w-3.5 h-3.5 text-indigo-600" />
                   <span>Estado de Caché & Offline</span>
                 </button>
+
+                {onOpenQrPrintStudio && (
+                  <button
+                    onClick={() => {
+                      onOpenQrPrintStudio();
+                      setShowDataMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Plantilla de Etiquetas para Cajas</span>
+                  </button>
+                )}
 
                 <div className="h-px bg-slate-100 my-1"></div>
 

@@ -15,6 +15,7 @@ import { SaveCenter } from './components/SaveCenter';
 import { OfflineCacheModal } from './components/OfflineCacheModal';
 import { FloatingMascotCompanion } from './components/mascot/FloatingMascotCompanion';
 import { MascotOnboardingModal } from './components/mascot/MascotOnboardingModal';
+import { LumiCharacter } from './components/mascot/LumiCharacter';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import { StorageItem, ItemSize, UsageFrequency } from './types/storage';
 import { WifiOff, Database } from 'lucide-react';
@@ -29,7 +30,16 @@ function AppContent() {
   } = useStorage();
 
   const { isOnline, isSimulatedOffline, effectiveOnline, toggleSimulatedOffline } = useNetworkStatus();
-  const { isOnboardingOpen, setIsOnboardingOpen } = useMascot();
+  const { isOnboardingOpen, setIsOnboardingOpen, setExpression, expression } = useMascot();
+
+  // Keep mascot expression synchronized with offline status
+  React.useEffect(() => {
+    if (!effectiveOnline) {
+      setExpression('offline');
+    } else if (expression === 'offline') {
+      setExpression('idle');
+    }
+  }, [effectiveOnline]);
 
   // Modals state
   const [isAdvisorOpen, setIsAdvisorOpen] = useState(false);
@@ -110,24 +120,30 @@ function AppContent() {
         onOpenAdvisor={() => setIsAdvisorOpen(true)}
         onOpenScanner={() => setIsScannerOpen(true)}
         onOpenOfflineCache={() => setIsOfflineModalOpen(true)}
+        onOpenQrPrintStudio={() => handleOpenQrModal('Plantilla de Etiquetas para Cajas', 'UBICAYA:PRINT:STUDIO', 'Caja de Almacenaje')}
         isOnline={isOnline}
         isSimulatedOffline={isSimulatedOffline}
       />
 
-      {/* Offline Alert Banner */}
+      {/* Offline Alert Banner with Miner Mascot */}
       {!effectiveOnline && (
-        <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between text-xs z-30 shadow-xs">
-          <div className="flex items-center gap-2">
-            <WifiOff className="w-4 h-4 shrink-0" />
-            <span>
-              <strong>Modo Sin Conexión (Offline Activo):</strong> Puedes consultar y navegar por tu mapa, habitaciones y lista de objetos sin problemas gracias a la caché persistente IndexedDB.
-            </span>
+        <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white px-4 py-2.5 flex items-center justify-between text-xs z-30 shadow-sm border-b border-amber-600">
+          <div className="flex items-center gap-3">
+            <LumiCharacter expression="offline" size="sm" isFloating />
+            <div>
+              <p className="font-extrabold text-xs tracking-tight">
+                ¡Sin internet no nos paramos! Guardando tus cosas en nuestro búnker local.
+              </p>
+              <p className="text-[11px] text-amber-100 opacity-90">
+                La base de datos local IndexedDB y el Service Worker mantienen tu inventario 100% operativo.
+              </p>
+            </div>
           </div>
           <button
             onClick={() => setIsOfflineModalOpen(true)}
-            className="px-2.5 py-1 rounded-lg bg-black/20 hover:bg-black/30 font-semibold text-[11px] transition shrink-0 ml-2"
+            className="px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/35 font-bold text-xs transition shrink-0 ml-2 border border-white/20"
           >
-            Ver Estado de Caché
+            Estado del Búnker
           </button>
         </div>
       )}

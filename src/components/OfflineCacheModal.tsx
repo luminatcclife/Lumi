@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { offlineCacheService, CacheMetadata } from '../services/offlineCache';
 import { useStorage } from '../context/StorageContext';
+import { LumiCharacter } from './mascot/LumiCharacter';
 
 interface OfflineCacheModalProps {
   isOpen: boolean;
@@ -149,6 +150,21 @@ export const OfflineCacheModal: React.FC<OfflineCacheModalProps> = ({
               {isSimulatedOffline ? 'Salir de Simulación' : 'Simular Offline'}
             </button>
           </div>
+
+          {/* Miner Mascot Offline Bunker Banner */}
+          {!effectiveStatus && (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-3.5 flex items-center gap-3.5 shadow-2xs">
+              <LumiCharacter expression="offline" size="sm" isFloating />
+              <div className="text-xs text-amber-950">
+                <span className="font-extrabold block text-slate-900">
+                  ¡Sin internet no nos paramos!
+                </span>
+                <span className="text-[11px] text-amber-800 leading-snug">
+                  Guardando tus cosas en nuestro búnker local (IndexedDB). Cuando vuelva la red, todo seguirá intacto y ordenado.
+                </span>
+              </div>
+            </div>
+          )}
 
           {syncMessage && (
             <div className="p-3 bg-emerald-100/70 border border-emerald-300 text-emerald-900 rounded-xl text-xs font-medium flex items-center gap-2">
